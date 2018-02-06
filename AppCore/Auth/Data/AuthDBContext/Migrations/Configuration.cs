@@ -12,7 +12,7 @@ namespace App.Core.Data.AuthDBContext.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = true;
+            AutomaticMigrationsEnabled = false;
         }
 
         protected override void Seed(App.Core.Data.AuthDBContext.AuthDBCon context)

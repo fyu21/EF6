@@ -10,7 +10,10 @@ namespace App.Core.SysInfo
         [Key]
         public Guid UserId { get; set; }
 
+        
         [Required]
+        [Index(IsUnique = true)]
+        [StringLength(50)]
         public string UserName { get; set; }
 
         [Required]

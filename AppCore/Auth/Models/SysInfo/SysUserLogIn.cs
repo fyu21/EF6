@@ -11,6 +11,6 @@ namespace App.Core.SysInfo
         [Required]
         public string Password { get; set; }
 
-        public string CreatedBy { get; set; }
+        public Guid CreatedBy { get; set; }
     }
 }
