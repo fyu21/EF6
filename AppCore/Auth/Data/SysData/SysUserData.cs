@@ -1,6 +1,7 @@
 ﻿using App.Core.Data.AuthDBContext;
 using App.Core.SysInfo;
 using System;
+using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.SqlClient;
 using System.Linq;
@@ -59,8 +60,8 @@ namespace App.Core.Data.SysData
 
         public SysCreateUserLogInResponse AddSysUser(SysUserLogIn userLogIn)
         {
-            SysCreateUserLogInResponse sysUserLogInResponse;// = new 
-                //SysCreateUserLogInResponse();
+            SysCreateUserLogInResponse sysUserLogInResponse; 
+                
             using (AuthDBCon dbc = new AuthDBCon())
             {
                 SysConfig sysConfig = dbc.SysConfigInfoes.Where(x => x.ConfigurationName == "PasswordSalt").FirstOrDefault();
@@ -150,21 +151,71 @@ namespace App.Core.Data.SysData
                 
 
             }
-
-            
-            
-
-
-            //using (AuthDBCon dbc = new AuthDBCon()) { }
-
-
-               // return sysUserLogInResponse;
+                       
         }
 
-        //public virtual SysCreateUserLogInResponse HandleException(Exception exception)
-        //{
+        public SysCreateUserLogInResponse ChangePassword(SysUserLogIn userLogIn)
+        {
+            SysCreateUserLogInResponse sysUserLogInResponse;
 
-        //}
+            using (AuthDBCon dbc = new AuthDBCon())
+            {
+                SysConfig sysConfig = dbc.SysConfigInfoes.Where(x => x.ConfigurationName == "PasswordSalt").FirstOrDefault();
+
+                if (sysConfig == null)
+                {
+                    sysUserLogInResponse = new SysCreateUserLogInResponse
+                    {
+                        StatusCode = "01",
+                        StatusDescription = "Configuration Issue"
+                    };
+
+                    return sysUserLogInResponse;
+                }
+                SysUser sysUser = dbc.SysUserInfoes.Where(x => x.UserName == userLogIn.UserName).FirstOrDefault();
+                if (sysUser == null)
+                {
+                    sysUserLogInResponse = new SysCreateUserLogInResponse
+                    {
+                        StatusCode = "02",
+                        StatusDescription = "Invalid Account"
+                    };
+
+                    return sysUserLogInResponse;
+                }
+                sysUser.Password = generatePassword(userLogIn.Password, sysConfig.ConfigurationValue);
+                sysUser.ModifiedDateTime = DateTime.Now;
+                sysUser.ModifiedById = userLogIn.CreatedBy;
+                try
+                {
+                    dbc.Entry(sysUser).State = EntityState.Modified;
+                    dbc.SaveChanges();
+                    sysUserLogInResponse = new SysCreateUserLogInResponse
+                    {
+                        UserId=sysUser.UserId,
+                        UserName=sysUser.UserName,
+                        StatusCode = "00",
+                        StatusDescription = ""
+                    };
+                    return sysUserLogInResponse;
+                }
+                catch (Exception ex)
+                {
+                    sysUserLogInResponse = new SysCreateUserLogInResponse
+                    {
+                        StatusCode = "03",
+                        StatusDescription = ex.Message
+                    };
+
+                    return sysUserLogInResponse;
+
+                }
+
+
+            }
+
+            
+        }
 
         private byte[] generatePassword(string password, string passwordSalt)
         {

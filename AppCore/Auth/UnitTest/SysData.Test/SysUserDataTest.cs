@@ -14,8 +14,8 @@ namespace SysData.Test
             SysUserData sysUserData = new SysUserData();
             SysUserLogIn userLogIn = new SysUserLogIn
             {
-                UserName = "SYSTEM",
-                Password = "12345678"
+                UserName = "test1",
+                Password = "999999"
             };
             SysUserLogInResponse sysUserLogInResponse=
             sysUserData.ValidateSysUser(userLogIn);
@@ -83,6 +83,23 @@ namespace SysData.Test
 
             Assert.AreEqual("02", sysUserLogInResponse.StatusCode);
 
+        }
+
+        [TestMethod]
+        public void ChangeUserPassword()
+        {
+            SysUserData sysUserData = new SysUserData();
+            SysUserLogIn userLogIn = new SysUserLogIn
+            {
+                UserName = "test1",
+                Password = "999999",
+                CreatedBy = new Guid("DAD2C21E-CD39-46FE-A1E3-C61CD3B66362")
+                
+            };
+
+            SysCreateUserLogInResponse sysUserLogInResponse  = sysUserData.ChangePassword(userLogIn);
+            Assert.AreEqual("00", sysUserLogInResponse.StatusCode);
+            
         }
     }
 }
